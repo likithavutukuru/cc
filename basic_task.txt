@@ -1,0 +1,25 @@
+sudo apt update
+sudo apt install cron nano -y
+sudo systemctl enable --now cron
+sudo systemctl status cron
+
+nano script.sh
+
+#!/bin/bash
+echo "Hello Selcia"
+
+Press Ctrl + O
+Press Enter
+Press Ctrl + X
+
+chmod +x script.sh
+./script.sh
+
+pwd
+note the directory
+
+crontab -e (if it asked to select an editor choose Nano)
+
+***** /bin/bash /home/student/script.sh >> home/student/output.log 2>&1
+cat output.log
+crontab -l

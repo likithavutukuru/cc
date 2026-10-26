@@ -1,0 +1,57 @@
+On VM1:
+    sudo apt update
+    sudo apt install apache2 -y
+    sudo systemctl enable --now apache2
+    sudo systemctl status apache2
+    echo '<h1> Welcome to Web Server 1 <h1>' | sudo tee /var/www/html/index.html
+    curl https://localhost
+
+ On VM2:
+    sudo apt update
+    sudo apt install apache2 -y
+    sudo systemctl enable --now apache2
+    sudo systemctl status apache2
+    echo '<h1> Welcome to Web Server 2 <h1>' | sudo tee /var/www/html/index.html
+    curl https://localhost
+
+hostname -I
+
+on VM1 :
+ sudo nano /etc/apache2/ports.conf
+Find:
+    Listen 80
+Change it to:
+    Listen 8080
+
+sudo nano /etc/apache2/sites-available/000-default.conf
+Find:
+    <VirtualHost *:80>
+Change it to:
+    <VirtualHost *:8080>
+
+    sudo systemctl restart apache2
+    curl http://localhost:8080
+
+    sudo apt update
+    sudo apt install haproxy -y
+    sudo nano /etc/haproxy/haproxy.cfg
+    
+    frontend http_front
+        bind *:80
+        default_backend web_servers
+
+    backend web_servers
+        balance roundrobin
+        option httpchk GET /
+        server vm1 127.0.0.1:8080 check
+        server vm2 VM2_IP:80 check
+
+    sudo haproxy -c -f /etc/haproxy/haproxy.cfg
+    sudo systemctl enable --now haproxy
+    sudo systemctl status haproxy
+
+    curl http://localhost
+    curl http://localhost
+    curl http://localhost
+    curl http://localhost
+    curl http://localhost
