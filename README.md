@@ -1,5 +1,5 @@
 # cc
-loadbalancer & fault tolerence = load_balancing.txt
+loadbalancer & fault tolerence = load_balncing.txt
 serverconsolidance = server_consolidance.txt
 basic task schedular = basic_task.txt
 task scheduling 2 process 2 times = task_scheduling1.txt
