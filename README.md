@@ -1,7 +1,10 @@
 # cc
-basic loadbalancer = load_balancing.txt
+loadbalancer & fault tolerence = load_balancing.txt
 serverconsolidance = server_consolidance.txt
 basic task schedular = basic_task.txt
+task scheduling 2 process 2 times = task_scheduling1.txt
+tasking scheduling worker node = task_scheduling2.txt
+task scheduling 30sec per message = task_scheduling3.txt
 
 client server sum = client_server.py
 client-server marks calculation = client_server2.py
