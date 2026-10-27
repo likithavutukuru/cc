@@ -1,0 +1,30 @@
+sudo apt update
+sudo apt install cron nano -y
+sudo systemctl enable --now cron
+sudo systemctl status cron
+
+nano message.sh
+
+#!/bin/bash
+while true
+do
+    echo "Hello! Task executed successfully."
+    sleep 30
+done
+
+Press Ctrl + O
+Press Enter
+Press Ctrl + X
+
+chmod +x message.sh
+./message.sh
+
+pwd
+note the directory
+
+crontab -e (if it asked to select an editor choose Nano)
+
+@reboot /bin/bash /home/student/message.sh >> /home/student/message.log 2>&1 &
+crontab -l
+cat /home/student/message.log
+tail -f /home/student/message.log

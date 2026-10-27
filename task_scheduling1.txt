@@ -1,0 +1,35 @@
+sudo apt update
+sudo apt install cron nano -y
+sudo systemctl enable --now cron
+sudo systemctl status cron
+
+1.Create script:
+    nano process1.sh
+2.Add:
+    #!/bin/bash
+    while true
+    do
+        echo "Process 1 running every 3 seconds"
+        sleep 3
+    done
+3.Save and exit
+4.chmod +x process1.sh
+5. Create second script:
+    nano process2.sh
+6. Add:
+    #!/bin/bash
+    while true
+    do
+        echo "Process 2 running every 15 seconds"
+        sleep 15
+    done
+7. Save and exit
+8. chmod +x process2.sh
+
+pwd
+crontab -e
+@reboot /bin/bash /home/student/process1.sh >> /home/student/process1.log 2>&1 &
+@reboot /bin/bash /home/student/process2.sh >> /home/student/process2.log 2>&1 &
+
+cat process1.log
+cat process2.log

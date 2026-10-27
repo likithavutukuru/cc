@@ -1,0 +1,116 @@
+sudo apt update
+sudo apt install cron nano -y
+sudo systemctl enable --now cron
+sudo systemctl status cron
+Both:
+    sudo apt update
+    sudo apt install python3 openssh-server -y
+    sudo systemctl enable --now ssh
+Find each VM's IP address:
+    hostname -I
+
+From VM1, test communication with VM2:
+    ping -c 4 192.168.100.11
+
+ON VM1:
+    ssh-keygen -t ed25519
+Press Enter to accept the default file location. For this lab, leave the passphrase empty.
+Copy the public key to both VMs:
+    ssh-copy-id username@VM1_IP
+    ssh-copy-id username@VM2_IP
+
+Test the connections:
+    ssh username@VM1_IP hostname
+    ssh username@VM2_IP hostname
+
+on Both:
+    nano worker.py
+
+import time
+import sys
+# Common start time provided by the scheduler
+start_time = float(sys.argv[1])
+# Execute tasks assigned to this worker
+for task in sys.argv[2:]:
+    task_name, duration = task.split(":")
+    duration = int(duration)
+    print(f"Starting {task_name} ({duration} seconds)")
+    time.sleep(duration)
+    completion_time = time.time() - start_time
+    print(
+        f"{task_name} completed at "
+        f"{completion_time:.2f} seconds"
+    )
+
+on vm1:
+nano scheduler.py
+
+import subprocess
+import time
+# Enter the actual Linux username and IP addresses
+USERNAME = "student"
+WORKERS = [
+    "192.168.100.10",  # Worker 1: VM1
+    "192.168.100.11"   # Worker 2: VM2
+]
+# Task name and processing time in seconds
+tasks = [
+    ("T1", 3),
+    ("T2", 5),
+    ("T3", 2),
+    ("T4", 4),
+    ("T5", 6),
+    ("T6", 1)
+]
+# Create a task list for each worker
+assigned_tasks = [[] for _ in WORKERS]
+print("ROUND ROBIN TASK SCHEDULER")
+print("-" * 45)
+# Assign tasks alternately to each worker
+for i, task in enumerate(tasks):
+    worker_index = i % len(WORKERS)
+    assigned_tasks[worker_index].append(task)
+    print(
+        f"{task[0]} -> Worker {worker_index + 1} "
+        f"({task[1]} seconds)"
+    )
+print("\nStarting task execution...")
+# Common reference time for completion times
+start_time = time.time()
+# Start both workers concurrently through SSH
+processes = []
+for i, worker_ip in enumerate(WORKERS):
+    task_args = [
+        f"{name}:{duration}"
+        for name, duration in assigned_tasks[i]
+    ]
+    command = [
+        "ssh",
+        f"{USERNAME}@{worker_ip}",
+        "python3",
+        "/home/" + USERNAME + "/worker.py",
+        str(start_time),
+        *task_args
+    ]
+    process = subprocess.Popen(
+        command,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True
+    )
+    processes.append(process)
+# Collect and display each worker's output
+for i, process in enumerate(processes):
+    output, _ = process.communicate()
+    print(f"\nWorker {i + 1} Output:")
+    print(output)
+    if process.returncode != 0:
+        print("Worker execution failed. Check SSH and file paths.")
+# Display task counts
+print("TASK DISTRIBUTION")
+for i, assigned in enumerate(assigned_tasks):
+    print(f"Worker {i + 1}: {len(assigned)} tasks")
+print(f"\nTotal tasks: {len(tasks)}")
+print("Scheduling completed.")
+
+python3 scheduler.py
